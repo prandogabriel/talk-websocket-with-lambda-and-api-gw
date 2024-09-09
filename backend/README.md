@@ -15,9 +15,9 @@ wscat -c ws://localhost:3001
 
 ```json
 # chat 1
-{"action":"joinroom","roomKey":"developers", "nickName": "Cabral"}
+{"action":"joinroom","roomKey":"chatEvent", "nickName": "Cabral"}
 
 # chat 2
-{"action":"joinroom","roomKey":"developers", "nickName": "Irineu"}
-{"action":"sendmessage","roomKey":"developers", "content": "oieeee"}
+{"action":"joinroom","roomKey":"chatEvent", "nickName": "Irineu"}
+{"action":"sendmessage","roomKey":"chatEvent", "content": "oieeee"}
 ```

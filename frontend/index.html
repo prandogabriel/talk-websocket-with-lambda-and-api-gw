@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super AWS Lambda chat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Super AWS Lambda chat</h1>
+    <div class="chat-container">
+        <div id="chatLog"></div>
+        <div class="controls">
+            <div id="joinSection">
+                <div class="input-group">
+                    <input type="text" id="nickName" placeholder="Your Nickname">
+                    <button onclick="joinRoom()">Join Chat</button>
+                </div>
+            </div>
+            <div id="chatSection">
+                <div class="input-group">
+                    <input type="text" id="messageInput" placeholder="Type your message">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
