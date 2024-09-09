@@ -26,10 +26,10 @@ jobs:
     name: Deploy serverless to development
     steps:
       - name: Checkout files
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -38,7 +38,8 @@ jobs:
       - name: Setup Node and Cache
         uses: actions/setup-node@v3
         with:
-          node-version-file: ".nvmrc"
+          node-version: 20
+          cache-dependency-path: ./backend/yarn.lock
           cache: yarn
 
       - name: Install dependencies with yarn
@@ -48,4 +49,4 @@ jobs:
 
       - name: serverless deploy
         shell: bash
-        run: yarn sls deploy --stage production
+        run: yarn sls deploy --stage dev
