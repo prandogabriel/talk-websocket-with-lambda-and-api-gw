@@ -27,7 +27,9 @@ const serverlessConfiguration: AWS = {
       metrics: false
     },
     environment: {
-      CONNECTIONS_TABLE: "Connections"
+      CONNECTIONS_TABLE: "Connections",
+      POST_WEBSOCKET_URL:
+        "https://idu3pbsnuj.execute-api.us-east-1.amazonaws.com/dev/"
     },
     iam: {
       role: {

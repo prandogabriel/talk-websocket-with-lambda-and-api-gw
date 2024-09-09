@@ -1,8 +1,3 @@
-## Rodar mongo para projeto
-```bash
-docker run -d --name test-socket -p 27017:27017 mongo
-```
-
 ## Rodar projeto em modo dev com serverless offline
 ```bash
 yarn start

@@ -48,7 +48,7 @@ export class WebsocketService {
 
     const message = `${nickName} saiu da sala`;
 
-    await this.notificationRoom(roomKey, message);
+    await this.notificationRoom(roomKey, message, event.requestContext);
   }
 
   public async joinRoom(event: WebsocketAPIGatewayEvent): Promise<void> {
@@ -68,7 +68,7 @@ export class WebsocketService {
     await saveConnection(updatedConnection);
 
     const message = `${nickName}  entrou na sala`;
-    await this.notificationRoom(roomKey, message);
+    await this.notificationRoom(roomKey, message, requestContext);
   }
 
   public async onMessage(event: WebsocketAPIGatewayEvent): Promise<void> {
@@ -78,20 +78,21 @@ export class WebsocketService {
 
     const connection = await findConnection(connectionId);
     const now = new Date();
-    const nowFormatted = new Intl.DateTimeFormat("pt-BR").format(now);
-    const message = `${connection.nickName} [${nowFormatted}]: ${content}`;
+    const nowFormatted = now.toTimeString().split(" ")[0];
+    const message = `[${nowFormatted}] - ${connection.nickName}: ${content}`;
 
-    await this.notificationRoom(roomKey, message);
+    await this.notificationRoom(roomKey, message, requestContext);
   }
 
-  // /**
-  //  * Como para teste tudo será local, não precisa receber nem armazenar o domínio para dar retorno
-  //  */
-  private async notificationRoom(roomKey: string, message: string) {
+  private async notificationRoom(
+    roomKey: string,
+    message: string,
+    requestContext: WebsocketAPIGatewayEvent["requestContext"]
+  ) {
     const connections = await findConnectionByRoom(roomKey);
 
     const connectionsIdFromRoom = connections.map((c) => c.connectionId.S);
-    const ws = new WebsocketClientService(this.log);
+    const ws = new WebsocketClientService(this.log, requestContext);
 
     await ws.sendToConnectionsId(message, connectionsIdFromRoom);
   }

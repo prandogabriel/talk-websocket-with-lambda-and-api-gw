@@ -15,16 +15,11 @@ export class WebsocketClientService {
     private log: Logger,
     private requestContext?: RealtimeAPIGatewayEventRequestContext
   ) {
-    const stage = this.requestContext?.stage || "local";
-    const configHttp = stage.match(/local/gi) ? "http" : "https";
-    const domain = requestContext?.domainName ?? "localhost:3001";
-    this.log.info(`${configHttp}://${domain}`);
-
     this.ws = new ApiGatewayManagementApiClient({
       apiVersion: "2018-11-29",
-      endpoint: `${configHttp}://${domain}`
+      endpoint: process.env.POST_WEBSOCKET_URL
     });
-    this.connectionId = requestContext?.connectionId;
+    this.connectionId = this.requestContext?.connectionId;
   }
 
   async send(msg: string | unknown, id?: string) {
