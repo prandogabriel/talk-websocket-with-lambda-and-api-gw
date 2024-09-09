@@ -4,6 +4,8 @@
   "scripts": {
     "start": "sls offline start --stage local",
     "dev": "yarn start",
+    "deploy": "sls deploy --stage dev",
+    "undeploy": "sls remove --stage dev",
     "sls": "serverless"
   },
   "dependencies": {
