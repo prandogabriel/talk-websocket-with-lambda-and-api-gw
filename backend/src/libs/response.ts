@@ -19,7 +19,7 @@ export class Response {
   public build(): CustomResponse<any> {
     return {
       statusCode: this.httpCode,
-      payload: this.payload,
+      payload: this.payload
     };
   }
 

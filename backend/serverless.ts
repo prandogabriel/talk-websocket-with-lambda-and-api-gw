@@ -1,11 +1,12 @@
-// eslint-disable-next-line import/no-import-module-exports
+/* eslint-disable import/no-import-module-exports */
 import type { AWS } from "@serverless/typescript";
+import * as functions from "@functions/index";
 
 const serverlessConfiguration: AWS = {
   useDotenv: true,
   service: "websocket-example",
   frameworkVersion: "3",
-  plugins: ["serverless-offline", "serverless-webpack"],
+  plugins: ["serverless-offline", "serverless-esbuild"],
   provider: {
     name: "aws",
     runtime: "nodejs20.x",
@@ -14,6 +15,7 @@ const serverlessConfiguration: AWS = {
     websocketsApiName: "websocket-example-socket",
     websocketsApiRouteSelectionExpression: "$request.body.action", // define the route selection expression for the API
     memorySize: 256,
+    versionFunctions: false,
     timeout: 10,
     logRetentionInDays: 30,
     apiGateway: {
@@ -22,66 +24,68 @@ const serverlessConfiguration: AWS = {
       description: "websocket example",
       disableDefaultEndpoint: true,
       binaryMediaTypes: ["*/*"],
-      metrics: false,
+      metrics: false
     },
+    environment: {
+      CONNECTIONS_TABLE: "Connections"
+    },
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: "Allow",
+            Action: [
+              "dynamodb:PutItem",
+              "dynamodb:GetItem",
+              "dynamodb:DeleteItem",
+              "dynamodb:Scan",
+              "dynamodb:Query"
+            ],
+            Resource: [
+              "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.CONNECTIONS_TABLE}",
+              "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.CONNECTIONS_TABLE}/index/RoomKeyIndex"
+            ]
+          }
+        ]
+      }
+    }
   },
-  functions: {
-    "websocket-connect": {
-      handler: "src/handler.connectFunction",
-      events: [
-        {
-          websocket: {
-            route: "$connect",
+  functions,
+  resources: {
+    Resources: {
+      ConnectionsTable: {
+        Type: "AWS::DynamoDB::Table",
+        Properties: {
+          TableName: "${self:provider.environment.CONNECTIONS_TABLE}",
+          AttributeDefinitions: [
+            { AttributeName: "connectionId", AttributeType: "S" },
+            { AttributeName: "roomKey", AttributeType: "S" }
+          ],
+          KeySchema: [{ AttributeName: "connectionId", KeyType: "HASH" }],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 5,
+            WriteCapacityUnits: 5
           },
-        },
-      ],
-      timeout: 10,
-    },
-
-    "websocket-default": {
-      handler: "src/handler.defaultFunction",
-      events: [
-        {
-          websocket: {
-            route: "$default",
+          TimeToLiveSpecification: {
+            AttributeName: "ttl",
+            Enabled: true
           },
-        },
-      ],
-      timeout: 10,
-    },
-    "websocket-disconnect": {
-      handler: "src/handler.disconnectFunction",
-      events: [
-        {
-          websocket: {
-            route: "$disconnect",
-          },
-        },
-      ],
-      timeout: 10,
-    },
-    "websocket-on-message": {
-      handler: "src/handler.onMessageFunction",
-      events: [
-        {
-          websocket: {
-            route: "$sendmessage",
-          },
-        },
-      ],
-      timeout: 10,
-    },
-    "websocket-join-room": {
-      handler: "src/handler.joinRoom",
-      events: [
-        {
-          websocket: {
-            route: "$joinroom",
-          },
-        },
-      ],
-      timeout: 10,
-    },
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: "RoomKeyIndex",
+              KeySchema: [{ AttributeName: "roomKey", KeyType: "HASH" }],
+              Projection: {
+                ProjectionType: "ALL"
+              },
+              ProvisionedThroughput: {
+                ReadCapacityUnits: 5,
+                WriteCapacityUnits: 5
+              }
+            }
+          ]
+        }
+      }
+    }
   },
   package: { individually: true, excludeDevDependencies: true },
   custom: {
@@ -93,9 +97,9 @@ const serverlessConfiguration: AWS = {
       target: "node20",
       define: { "require.resolve": undefined },
       platform: "node",
-      concurrency: 10,
-    },
-  },
+      concurrency: 10
+    }
+  }
 };
 
 module.exports = serverlessConfiguration;
