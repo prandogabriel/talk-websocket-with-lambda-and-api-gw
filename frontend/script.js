@@ -11,7 +11,7 @@ function joinRoom() {
   currentNickname = nickName;
 
   socket = new WebSocket(
-    "wss://idu3pbsnuj.execute-api.us-east-1.amazonaws.com/dev/"
+    "wss://4a7ipl75i0.execute-api.us-east-1.amazonaws.com/dev/"
   );
 
   socket.onopen = function (event) {
